@@ -96,7 +96,7 @@ def plot_potentiometer(filename, sample_num, data):
     plt.title('Potentiometer Value with Respect to Time')
 
     plt.tight_layout()
-    plt.savefig(filename + 'plot.png')
+    plt.savefig(filename + 'pot.png')
 
     plt.clf()
 
