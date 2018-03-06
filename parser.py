@@ -125,6 +125,7 @@ def plot_both(filename, sample_num, pot_norm, accel_norm):
     plt.ylabel('Sensor Data')
     plt.xlabel('Sample Number')
     plt.title('Potentiometer and Accelerometer Data with Respect to Sample Number')
+    plt.legend(['Potentiometer', 'Accelerometer'], fontsize='xx-small')
 
     plt.tight_layout()
     plt.savefig(filename + 'both.png')
