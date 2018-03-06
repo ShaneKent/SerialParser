@@ -17,6 +17,9 @@ def open_file(filename):
     try:
         with open(filename, "r") as file:
             lines = file.readlines()
+            if len(lines) == 1:
+                lines = lines[0].split('\r')
+
     except IOError:
         print("Provide a text file with a raw serial data stream.")
         print("Usage: parser.py <filename>")
@@ -31,9 +34,10 @@ def parse_data(filename, lines):
     pot_data = [['Sample Number', 'Potentiometer Data']]
     accel_data = [['Sample Number', 'X Data', 'Y Data', 'Z Data']]
     
-    i = j = 0
+    i = 0
+    j = 0
+
     for line in lines:
-        
         split = line.split(',')
         
         if split[0] == '~HSAC':
@@ -81,7 +85,10 @@ def plot_potentiometer(filename, sample_num, data):
     min_data = min(data)
     max_data = max(data)
 
-    normalized = [float(x - min_data)/float(max_data - min_data) for x in data]
+    try:
+        normalized = [float(x - min_data)/float(max_data - min_data) for x in data]
+    except ZeroDivisionError:
+        normalized = [float(x - min_data)/0.00001 for x in data]
 
     plt.plot(sample_num, normalized)
     plt.ylabel('Normalized Potentiometer Value')
@@ -105,7 +112,10 @@ def plot_accelerometer(filename, sample_num, data):
     min_data = min(magnitude)
     max_data = max(magnitude)
 
-    normalized = [float(x - min_data)/float(max_data - min_data) for x in magnitude]
+    try:
+        normalized = [float(x - min_data)/float(max_data - min_data) for x in magnitude]
+    except ZeroDivisionError:
+        normalized = [float(x - min_data)/0.00001 for x in magnitude]
 
     plt.plot(sample_num, normalized)
     plt.ylabel('Normalized Accelerometer Data')
@@ -148,7 +158,7 @@ if __name__ == "__main__":
     sample_num = [sample[0] for sample in accel]
     accel      = [(sample[1], sample[2], sample[3]) for sample in accel]
     pot        = [sample[1] for sample in pot]
-    
+
     pot_norm   = plot_potentiometer(path, sample_num, pot)
     accel_norm = plot_accelerometer(path, sample_num, accel)
 
