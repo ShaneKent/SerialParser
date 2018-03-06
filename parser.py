@@ -75,51 +75,62 @@ def write_to_output(name, data):
 
 def plot_potentiometer(filename, sample_num, data):
     """
-    Nothing special needs to be done to the potentiometer data before plotting it.
+    Normalize the data to comparse to the accelerometer data.
     """
-    plt.plot(sample_num, data)
-    plt.ylabel('Potentiometer Value')
+
+    min_data = min(data)
+    max_data = max(data)
+
+    normalized = [float(x - min_data)/float(max_data - min_data) for x in data]
+
+    plt.plot(sample_num, normalized)
+    plt.ylabel('Normalized Potentiometer Value')
     plt.xlabel('Sample Number')
     plt.title('Potentiometer Value with Respect to Time')
 
+    plt.tight_layout()
     plt.savefig(filename + 'plot.png')
+
+    plt.clf()
+
+    return normalized
 
 def plot_accelerometer(filename, sample_num, data):
     """
     Normalize the vector data and plot the x, y, and z components.
     """
 
-    x = []
-    y = []
-    z = []
+    magnitude = [math.sqrt((i[0] ** 2) + (i[1] ** 2) + (i[2] ** 2)) for i in data]
 
-    for vector in data:
-        magnitude = math.sqrt( (vector[0] ** 2) + (vector[1] ** 2) + (vector[2] ** 2))
-        
-        x.append( vector[0] / magnitude )
-        y.append( vector[1] / magnitude )
-        z.append( vector[2] / magnitude )
+    min_data = min(magnitude)
+    max_data = max(magnitude)
 
-    plt.subplot(3, 1, 1)
-    plt.plot(sample_num, x)
-    plt.ylabel('X-Axis')
+    normalized = [float(x - min_data)/float(max_data - min_data) for x in magnitude]
+
+    plt.plot(sample_num, normalized)
+    plt.ylabel('Normalized Accelerometer Data')
     plt.xlabel('Sample Number')
-    plt.title('Normalized X Axis with Respect to Time')
-    
-    plt.subplot(3, 1, 2)
-    plt.plot(sample_num, y)
-    plt.ylabel('Y-Axis')
-    plt.xlabel('Sample Number')
-    plt.title('Normalized Y Axis with Respect to Time')
-    
-    plt.subplot(3, 1, 3)
-    plt.plot(sample_num, z)
-    plt.ylabel('Z-Axis')
-    plt.xlabel('Sample Number')
-    plt.title('Normalized Z Axis with Respect to Time')
-    
+    plt.title('Accelerometer Data with Respect to Sample Number')
+
     plt.tight_layout()
     plt.savefig(filename + 'accel.png')
+
+    plt.clf()
+
+    return normalized
+
+def plot_both(filename, sample_num, pot_norm, accel_norm):
+
+    plt.plot(sample_num, pot_norm, sample_num, accel_norm)
+    plt.ylabel('Sensor Data')
+    plt.xlabel('Sample Number')
+    plt.title('Potentiometer and Accelerometer Data with Respect to Sample Number')
+
+    plt.tight_layout()
+    plt.savefig(filename + 'both.png')
+
+    plt.clf()
+
 
 if __name__ == "__main__":
     filename = check_arguments()
@@ -137,7 +148,8 @@ if __name__ == "__main__":
     accel      = [(sample[1], sample[2], sample[3]) for sample in accel]
     pot        = [sample[1] for sample in pot]
     
-    plot_potentiometer(path, sample_num, pot)
-    plot_accelerometer(path, sample_num, accel)
+    pot_norm   = plot_potentiometer(path, sample_num, pot)
+    accel_norm = plot_accelerometer(path, sample_num, accel)
 
+    plot_both(path, sample_num, pot_norm, accel_norm)
     
