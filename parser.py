@@ -6,7 +6,7 @@ import math
 import glob
 import time
 import shutil
-import serial.tools.list_ports_osx
+import serial.tools.list_ports
 import matplotlib.pyplot as plt
 
 # pip install tox
@@ -15,7 +15,6 @@ import matplotlib.pyplot as plt
 def check_arguments():
 
     if len(sys.argv) != 4:
-        print(len(sys.argv))
         print("Usage: python parser.py <output-folder-name> <port-number> <recording-time-seconds>")
         sys.exit(-1)
 
@@ -26,8 +25,11 @@ def check_filename(filename):
     if os.path.isfile(filename) or os.path.isdir(filename):    
         ans = ""
         while ans is not "Y" and ans is not "n":
-            ans = raw_input("Path/filename " + filename + " already exists. Overwrite? [Y/n] ")
-        
+            try:
+                ans = raw_input("Path/filename " + filename + " already exists. Overwrite? [Y/n] ")
+            except NameError:
+                ans = input("Path/filename " + filename + " already exists. Overwrite? [Y/n] ")
+                
         if ans == 'n':
             print('Cancelling. Please provide a filename that doesn\'t already exist.')
             exit(-1)
@@ -45,14 +47,10 @@ def check_port_number(port_number):
 
     if sys.platform.startswith('win'):
         ports = ['COM' + str(i) for i in range(1, 257)]
-
     elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
-        # this excludes your current terminal "/dev/tty"
         ports = glob.glob('/dev/tty[A-Za-z]*')
-    
     elif sys.platform.startswith('darwin'):
         ports = glob.glob('/dev/tty.*')
-    
     else:
         raise EnvironmentError('Unsupported platform')
 
@@ -61,8 +59,13 @@ def check_port_number(port_number):
             return port
 
     print('Provided port number doesn\'t exist. Available ports include:')
-    for port in ports:
-        print('\t' + port)
+    if sys.platform.startswith('win'):
+        for port in serial.tools.list_ports.comports():
+            print('\t' + str(port))
+    else:
+        for port in ports:
+            print('\t' + port)
+            
     exit(-1)
     
     return
