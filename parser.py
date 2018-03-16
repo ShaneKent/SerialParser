@@ -256,7 +256,7 @@ def plot_both(filename, sample_num, pot_norm, accel_norm):
 
     return
 
-
+"""
 if __name__ == "__main__":
 
     filename, port_number, recording_time = check_arguments()
@@ -279,3 +279,4 @@ if __name__ == "__main__":
     except Error as e:
         print("Something went wrong!")
         print(e)
+"""
